@@ -1,4 +1,4 @@
-# CAO-Project
+# CAO Project
 ### A 4th semester project in computer science's for our Computer Architecture &amp; Organization course, which is made using the esp32-CAM.
 ## Project Decsription
 A home security system with face recognition using the attached camera, as well as an automatic door locking mechanism.
