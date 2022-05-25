@@ -113,11 +113,11 @@ void setup() {
   
   if(psramFound()){
     config.frame_size = FRAMESIZE_UXGA;
-    config.jpeg_quality = 60;
+    config.jpeg_quality = 10;   
     config.fb_count = 2;
   } else {
     config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 62;
+    config.jpeg_quality = 12;   
     config.fb_count = 1;
   }
 
@@ -220,7 +220,7 @@ void sendPhoto( void ) {
   smtpData.setSubject(emailSubject);
     
   // Set the email message in HTML format
-  smtpData.setMessage("<h2>Photo captured with ESP32-CAM and attached in this email.</h2>", true);
+  smtpData.setMessage("<h1>Motion Detected!</h1><br/><h2>Photo captured with ESP32-CAM and attached in this email.</h2>", true);
   // Set the email message in text format
   //smtpData.setMessage("Photo captured with ESP32-CAM and attached in this email.", false);
 
