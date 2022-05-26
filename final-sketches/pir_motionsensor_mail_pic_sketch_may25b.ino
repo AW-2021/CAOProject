@@ -23,6 +23,8 @@ const char* password = "wasif2017";
 #define emailSubject          "ESP32-CAM Photo Captured"
 #define emailRecipient        "aminawasif15@gmail.com"
 
+#define BUZZER_PIN 14  // ESP32 pin GPIO16 connected to Buzzer's pin
+
 #define CAMERA_MODEL_AI_THINKER
 
 #if defined(CAMERA_MODEL_AI_THINKER)
@@ -49,6 +51,8 @@ const char* password = "wasif2017";
 
 int pictureNumber = 0; //HERE
 
+//int Buzzer = 16; //for ESP32 Microcontroller   //HERE+
+
 // The Email Sending data object contains config and data to send
 SMTPData smtpData;
 
@@ -61,7 +65,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   
-  Serial.setDebugOutput(true); //HERE
+  //Serial.setDebugOutput(true); //HERE
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
@@ -110,6 +114,8 @@ void setup() {
   pinMode(4, INPUT); //HERE
   digitalWrite(4, LOW); //HERE
   rtc_gpio_hold_dis(GPIO_NUM_4); //HERE
+
+  pinMode (BUZZER_PIN, OUTPUT);   //HERE+
   
   if(psramFound()){
     config.frame_size = FRAMESIZE_UXGA;
@@ -123,6 +129,8 @@ void setup() {
 
   // Initialize camera
   esp_err_t err = esp_camera_init(&config);
+ 
+  
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
@@ -134,11 +142,19 @@ void setup() {
   s->set_brightness(s, 2);  //min=-2, max=2     //HERE
   s->set_saturation(s, 2);  //min=-2, max=2     //HERE
   delay(100);               //wait a little for settings to take effect   //HERE
-  
-  capturePhotoSaveSpiffs();
-  sendPhoto();
 
-  delay(1000); //HERE
+  Serial.println("Starting the buzzer now....");   //HERE+
+  digitalWrite (BUZZER_PIN, HIGH); //turn buzzer on   //HERE+
+                                    
+  capturePhotoSaveSpiffs();
+  sendPhoto(); 
+  delay(1000); //HERE+ 
+
+  Serial.println("Stopping the buzzer now....");    //HERE+
+  digitalWrite (BUZZER_PIN, LOW);  //turn buzzer off  //HERE+
+  //delay(1000); //HERE+
+
+  delay(3000); //HERE 1000
 
   // Turns off the ESP32-CAM white on-board LED (flash) connected to GPIO 4
   pinMode(4, OUTPUT);  //GPIO for LED flash       //HERE
@@ -148,13 +164,13 @@ void setup() {
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_13, 0);   //HERE
  
   Serial.println("Going to sleep now");       //HERE
-  delay(3000);                                //HERE
+  delay(3000);                                //HERE 
   esp_deep_sleep_start();                     //HERE
-  Serial.println("Now in Deep Sleep Mode");  //HERE
+  Serial.println("This will never print and is only for testing");  //HERE  
 }
 
 void loop() {
-
+  
 }
 
 // Check if photo capture was successful
