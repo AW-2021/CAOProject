@@ -8,8 +8,41 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <WiFi.h>
+#include <ESP32Servo.h> //HERE+
+#include <analogWrite.h>  //HERE+
+//#include <tone.h> //HERE+
+#include <ESP32Tone.h>  //HERE+
+#include <ESP32PWM.h> //HERE+
+
+#include "pitches.h"  //HERE+
 
 RTC_DATA_ATTR int bootCount = 0; //HERE
+
+const int BUZZER_PIN = 14; // GIOP14 pin connected to piezo buzzer //HERE+ 
+
+// notes in the melody:
+int melody[] = {  //HERE+
+  NOTE_E5, NOTE_E5, NOTE_E5,
+  NOTE_E5, NOTE_E5, NOTE_E5,
+  NOTE_E5, NOTE_G5, NOTE_C5, NOTE_D5,
+  NOTE_E5,
+  NOTE_F5, NOTE_F5, NOTE_F5, NOTE_F5,
+  NOTE_F5, NOTE_E5, NOTE_E5, NOTE_E5, NOTE_E5,
+  NOTE_E5, NOTE_D5, NOTE_D5, NOTE_E5,
+  NOTE_D5, NOTE_G5
+};  //HERE+
+
+// note durations: 4 = quarter note, 8 = eighth note, etc, also called tempo:
+int noteDurations[] = { //HERE+
+  8, 8, 4,
+  8, 8, 4,
+  8, 8, 8, 8,
+  2,
+  8, 8, 8, 8,
+  8, 8, 8, 16, 16,
+  8, 8, 8, 8,
+  4, 4
+};  //HERE+
 
 // REPLACE WITH YOUR NETWORK CREDENTIALS
 const char* ssid = "ZONG4G-C778";
@@ -47,11 +80,7 @@ const char* password = "02061430";
   #error "Camera model not selected"
 #endif
 
-int pictureNumber = 0; //HERE
-
-int freq = 2000;      //HERE+
-int channel = 0;      //HERE+
-int resolution_sound = 8;   //HERE+  
+int pictureNumber = 0; //HERE  
 
 // The Email Sending data object contains config and data to send
 SMTPData smtpData;
@@ -117,11 +146,11 @@ void setup() {
   
   if(psramFound()){
     config.frame_size = FRAMESIZE_UXGA;
-    config.jpeg_quality = 10;   
+    config.jpeg_quality = 60;   
     config.fb_count = 2;
   } else {
     config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 12;   
+    config.jpeg_quality = 62;   
     config.fb_count = 1;
   }
 
@@ -140,35 +169,31 @@ void setup() {
   s->set_brightness(s, 2);  //min=-2, max=2     //HERE
   s->set_saturation(s, 2);  //min=-2, max=2     //HERE
   delay(100);               //wait a little for settings to take effect   //HERE
-  
-                                    
+                            
   capturePhotoSaveSpiffs();
   sendPhoto(); 
 
   delay(1000); //HERE 
 
-  ledcSetup(channel, freq, resolution_sound); //HERE+
-  ledcAttachPin(16, channel); //HERE+
+  // iterate over the notes of the melody:  //HERE+
+  int size = sizeof(noteDurations) / sizeof(int); //HERE+
 
-  ledcWriteTone(channel, 2000); //HERE+
-  
-  for (int dutyCycle = 0; dutyCycle <= 255; dutyCycle=dutyCycle+10){  //HERE+
-  
-    Serial.println(dutyCycle);  //HERE+
-  
-    ledcWrite(channel, dutyCycle);  //HERE+
-    delay(1000);    //HERE+
-  }
-  
-  ledcWrite(channel, 125);  //HERE+
-  
-  for (int freq = 255; freq < 1000; freq = freq + 250){  //HERE+
-  
-     Serial.println(freq);  //HERE+
-  
-     ledcWriteTone(channel, freq);  //HERE+
-     delay(1000);   //HERE+
-  }                 //HERE+
+  for (int thisNote = 0; thisNote < size; thisNote++) { //HERE+
+
+    // to calculate the note duration, take one second divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 1000 / noteDurations[thisNote];  //HERE+
+    tone(BUZZER_PIN, melody[thisNote], noteDuration);  //HERE+
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;  //HERE+
+    delay(pauseBetweenNotes); //HERE+
+    // stop the tone playing:
+    noTone(BUZZER_PIN);  //HERE+
+  } //HERE+
+
+  delay(1000); //HERE+
 
   // Turns off the ESP32-CAM white on-board LED (flash) connected to GPIO 4
   pinMode(4, OUTPUT);  //GPIO for LED flash       //HERE
