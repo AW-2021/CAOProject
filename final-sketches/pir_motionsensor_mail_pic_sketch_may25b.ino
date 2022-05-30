@@ -12,8 +12,8 @@
 RTC_DATA_ATTR int bootCount = 0; //HERE
 
 // REPLACE WITH YOUR NETWORK CREDENTIALS
-const char* ssid = "Wasif2";
-const char* password = "wasif2017";
+const char* ssid = "ZONG4G-C778";
+const char* password = "02061430";
 
 // To send Emails using Gmail on port 465 (SSL), you need to create an app password: https://support.google.com/accounts/answer/185833
 #define emailSenderAccount    "test.cao444@gmail.com"
@@ -22,8 +22,6 @@ const char* password = "wasif2017";
 #define smtpServerPort        465
 #define emailSubject          "ESP32-CAM Photo Captured"
 #define emailRecipient        "aminawasif15@gmail.com"
-
-#define BUZZER_PIN 14  // ESP32 pin GPIO16 connected to Buzzer's pin
 
 #define CAMERA_MODEL_AI_THINKER
 
@@ -51,8 +49,6 @@ const char* password = "wasif2017";
 
 int pictureNumber = 0; //HERE
 
-//int Buzzer = 16; //for ESP32 Microcontroller   //HERE+
-
 // The Email Sending data object contains config and data to send
 SMTPData smtpData;
 
@@ -63,9 +59,9 @@ void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
   
   Serial.begin(115200);
-  Serial.println();
+  //Serial.println();
   
-  //Serial.setDebugOutput(true); //HERE
+  Serial.setDebugOutput(true); //HERE
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
@@ -114,8 +110,6 @@ void setup() {
   pinMode(4, INPUT); //HERE
   digitalWrite(4, LOW); //HERE
   rtc_gpio_hold_dis(GPIO_NUM_4); //HERE
-
-  pinMode (BUZZER_PIN, OUTPUT);   //HERE+
   
   if(psramFound()){
     config.frame_size = FRAMESIZE_UXGA;
@@ -142,19 +136,12 @@ void setup() {
   s->set_brightness(s, 2);  //min=-2, max=2     //HERE
   s->set_saturation(s, 2);  //min=-2, max=2     //HERE
   delay(100);               //wait a little for settings to take effect   //HERE
-
-  Serial.println("Starting the buzzer now....");   //HERE+
-  digitalWrite (BUZZER_PIN, HIGH); //turn buzzer on   //HERE+
+  
                                     
   capturePhotoSaveSpiffs();
   sendPhoto(); 
-  delay(1000); //HERE+ 
 
-  Serial.println("Stopping the buzzer now....");    //HERE+
-  digitalWrite (BUZZER_PIN, LOW);  //turn buzzer off  //HERE+
-  //delay(1000); //HERE+
-
-  delay(3000); //HERE 1000
+  delay(1000); //HERE 
 
   // Turns off the ESP32-CAM white on-board LED (flash) connected to GPIO 4
   pinMode(4, OUTPUT);  //GPIO for LED flash       //HERE
