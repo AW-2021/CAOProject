@@ -20,29 +20,118 @@ RTC_DATA_ATTR int bootCount = 0; //HERE
 
 const int BUZZER_PIN = 14; // GIOP14 pin connected to piezo buzzer //HERE+ 
 
-// notes in the melody:
-int melody[] = {  //HERE+
-  NOTE_E5, NOTE_E5, NOTE_E5,
-  NOTE_E5, NOTE_E5, NOTE_E5,
-  NOTE_E5, NOTE_G5, NOTE_C5, NOTE_D5,
-  NOTE_E5,
-  NOTE_F5, NOTE_F5, NOTE_F5, NOTE_F5,
-  NOTE_F5, NOTE_E5, NOTE_E5, NOTE_E5, NOTE_E5,
-  NOTE_E5, NOTE_D5, NOTE_D5, NOTE_E5,
-  NOTE_D5, NOTE_G5
-};  //HERE+
+// Change to 0.5 for a slower version of the song, 1.25 for a faster version
+const float songSpeed = 1.0;  //HERE+
 
-// note durations: 4 = quarter note, 8 = eighth note, etc, also called tempo:
-int noteDurations[] = { //HERE+
-  8, 8, 4,
-  8, 8, 4,
-  8, 8, 8, 8,
-  2,
-  8, 8, 8, 8,
-  8, 8, 8, 16, 16,
-  8, 8, 8, 8,
-  4, 4
-};  //HERE+
+// Music notes of the song, 0 is a rest/pulse
+int notes[] = {   //HERE+
+    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0,
+    NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
+    NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+    NOTE_A4, NOTE_G4, NOTE_A4, 0,
+
+    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0,
+    NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
+    NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+    NOTE_A4, NOTE_G4, NOTE_A4, 0,
+
+    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0,
+    NOTE_A4, NOTE_C5, NOTE_D5, NOTE_D5, 0,
+    NOTE_D5, NOTE_E5, NOTE_F5, NOTE_F5, 0,
+    NOTE_E5, NOTE_D5, NOTE_E5, NOTE_A4, 0,
+
+    NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
+    NOTE_D5, NOTE_E5, NOTE_A4, 0,
+    NOTE_A4, NOTE_C5, NOTE_B4, NOTE_B4, 0,
+    NOTE_C5, NOTE_A4, NOTE_B4, 0,
+
+    NOTE_A4, NOTE_A4,
+    //Repeat of first part
+    NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
+    NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+    NOTE_A4, NOTE_G4, NOTE_A4, 0,
+
+    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0,
+    NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
+    NOTE_C5, NOTE_D5, NOTE_B4, NOTE_B4, 0,
+    NOTE_A4, NOTE_G4, NOTE_A4, 0,
+
+    NOTE_E4, NOTE_G4, NOTE_A4, NOTE_A4, 0,
+    NOTE_A4, NOTE_C5, NOTE_D5, NOTE_D5, 0,
+    NOTE_D5, NOTE_E5, NOTE_F5, NOTE_F5, 0,
+    NOTE_E5, NOTE_D5, NOTE_E5, NOTE_A4, 0,
+
+    NOTE_A4, NOTE_B4, NOTE_C5, NOTE_C5, 0,
+    NOTE_D5, NOTE_E5, NOTE_A4, 0,
+    NOTE_A4, NOTE_C5, NOTE_B4, NOTE_B4, 0,
+    NOTE_C5, NOTE_A4, NOTE_B4, 0,
+    //End of Repeat
+
+    NOTE_E5, 0, 0, NOTE_F5, 0, 0,
+    NOTE_E5, NOTE_E5, 0, NOTE_G5, 0, NOTE_E5, NOTE_D5, 0, 0,
+    NOTE_D5, 0, 0, NOTE_C5, 0, 0,
+    NOTE_B4, NOTE_C5, 0, NOTE_B4, 0, NOTE_A4,
+
+    NOTE_E5, 0, 0, NOTE_F5, 0, 0,
+    NOTE_E5, NOTE_E5, 0, NOTE_G5, 0, NOTE_E5, NOTE_D5, 0, 0,
+    NOTE_D5, 0, 0, NOTE_C5, 0, 0,
+    NOTE_B4, NOTE_C5, 0, NOTE_B4, 0, NOTE_A4};  //HERE+
+
+// Durations (in ms) of each music note of the song
+// Quarter Note is 250 ms when songSpeed = 1.0
+int durations[] = {     //HERE+
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 375, 125,
+
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 375, 125,
+
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 125, 250, 125,
+
+    125, 125, 250, 125, 125,
+    250, 125, 250, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 375, 375,
+
+    250, 125,
+    //Rpeat of First Part
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 375, 125,
+
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 375, 125,
+
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 125, 250, 125,
+
+    125, 125, 250, 125, 125,
+    250, 125, 250, 125,
+    125, 125, 250, 125, 125,
+    125, 125, 375, 375,
+    //End of Repeat
+
+    250, 125, 375, 250, 125, 375,
+    125, 125, 125, 125, 125, 125, 125, 125, 375,
+    250, 125, 375, 250, 125, 375,
+    125, 125, 125, 125, 125, 500,
+
+    250, 125, 375, 250, 125, 375,
+    125, 125, 125, 125, 125, 125, 125, 125, 375,
+    250, 125, 375, 250, 125, 375,
+    125, 125, 125, 125, 125, 500};   //HERE+
+    
 
 // REPLACE WITH YOUR NETWORK CREDENTIALS
 const char* ssid = "ZONG4G-C778";
@@ -175,24 +264,25 @@ void setup() {
 
   delay(1000); //HERE 
 
-  // iterate over the notes of the melody:  //HERE+
-  int size = sizeof(noteDurations) / sizeof(int); //HERE+
-
-  for (int thisNote = 0; thisNote < size; thisNote++) { //HERE+
-
-    // to calculate the note duration, take one second divided by the note type.
-    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
-    int noteDuration = 1000 / noteDurations[thisNote];  //HERE+
-    tone(BUZZER_PIN, melody[thisNote], noteDuration);  //HERE+
-
-    // to distinguish the notes, set a minimum time between them.
-    // the note's duration + 30% seems to work well:
-    int pauseBetweenNotes = noteDuration * 1.30;  //HERE+
-    delay(pauseBetweenNotes); //HERE+
-    // stop the tone playing:
-    noTone(BUZZER_PIN);  //HERE+
+  const int totalNotes = sizeof(notes) / sizeof(int); //HERE+
+  // Loop through each note
+  for (int i = 0; i < totalNotes; i++)  //HERE+
+  {
+    const int currentNote = notes[i]; //HERE+
+    float wait = durations[i] / songSpeed;  //HERE+
+    // Play tone if currentNote is not 0 frequency, otherwise pause (noTone)
+    if (currentNote != 0) //HERE+
+    {
+      tone(BUZZER_PIN, notes[i], wait); // tone(pin, frequency, duration) //HERE+
+    }
+    else
+    {
+      noTone(BUZZER_PIN); //HERE+
+    }
+    // delay is used to wait for tone to finish playing before moving to next loop
+    delay(wait);  //HERE+
   } //HERE+
-
+  
   delay(1000); //HERE+
 
   // Turns off the ESP32-CAM white on-board LED (flash) connected to GPIO 4
